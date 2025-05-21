@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubTracker | Subscription Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-calendar-check"></i>
+                <h1>SubTracker</h1>
+            </div>
+            <div class="top-controls">
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+        
+        <main>
+            <section class="dashboard">
+                <div class="dashboard-cards">
+                    <div class="card monthly-total">
+                        <h3>Monthly Total</h3>
+                        <p id="monthly-cost">$0.00</p>
+                    </div>
+                    <div class="card yearly-total">
+                        <h3>Yearly Total</h3>
+                        <p id="yearly-cost">$0.00</p>
+                    </div>
+                    <div class="card subscription-count">
+                        <h3>Active Subscriptions</h3>
+                        <p id="sub-count">0</p>
+                    </div>
+                    <div class="card upcoming-renewal">
+                        <h3>Next Renewal</h3>
+                        <p id="next-renewal">None</p>
+                    </div>
+                </div>
+            </section>
+            <section class="charts-section">
+                <h2>Subscription Analytics</h2>
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Spending by Category</h3>
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Monthly Spending Trend</h3>
+                        <canvas id="trend-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+            <section class="subscription-management">
+                <div class="tools-bar">
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search subscriptions...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="filter-controls">
+                        <select id="category-filter">
+                            <option value="all">All Categories</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="productivity">Productivity</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <select id="sort-by">
+                            <option value="name">Sort by Name</option>
+                            <option value="price">Sort by Price</option>
+                            <option value="date">Sort by Renewal Date</option>
+                        </select>
+                    </div>
+                    <button id="add-btn" class="add-button">
+                        <i class="fas fa-plus"></i> Add New
+                    </button>
+                </div>
+                
+                <div id="subscriptions-list" class="subscriptions-list">
+                    <!-- Subscriptions will be dynamically added here -->
+                    <p class="empty-message">No subscriptions added yet.</p>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Modal for adding/editing subscriptions -->
+        <div id="subscription-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Add New Subscription</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="subscription-form">
+                    <div class="form-group">
+                        <label for="name">Service Name:</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Monthly Price ($):</label>
+                        <input type="number" id="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category" required>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="productivity">Productivity</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Renewal Date:</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes (Optional):</label>
+                        <textarea id="notes"></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" id="cancel-btn">Cancel</button>
+                        <button type="submit" id="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
