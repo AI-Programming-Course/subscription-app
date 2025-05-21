@@ -353,9 +353,6 @@ function handleFormSubmit(e) {
     console.log(`Subscription ${action}: ${name}`);
 }
 
-/**
- * Handle Subscription Actions (Edit/Delete)
- */
 function handleSubscriptionAction(e) {
     const button = e.target.closest('.edit-btn, .delete-btn');
     if (!button) return;

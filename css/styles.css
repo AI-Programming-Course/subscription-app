@@ -493,7 +493,6 @@ textarea {
     color: var(--text-secondary);
     text-align: center;
 }
-
 canvas {
     width: 100% !important;
     height: 300px !important;
