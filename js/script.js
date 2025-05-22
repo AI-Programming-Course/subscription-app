@@ -40,11 +40,11 @@ function initTheme() {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme);
-    
+
     // Redraw charts with new theme colors
     setTimeout(updateCharts, 100);
 }
@@ -170,6 +170,90 @@ function updateDashboard() {
 
         nextRenewal.textContent = renewalText;
     }
+    // Add this line at the very end of the function:
+    updateAdvancedDashboard();
+}
+
+/**
+ * Enhanced Analytics Functions
+ */
+function calculateAdvancedStats() {
+    if (subscriptions.length === 0) {
+        return {
+            averageCost: 0,
+            mostExpensive: null,
+            spendingTrend: null,
+            subscriptionGrowth: 0
+        };
+    }
+
+    // Calculate average cost
+    const totalMonthlyCost = subscriptions.reduce((sum, sub) => sum + parseFloat(sub.price), 0);
+    const averageCost = totalMonthlyCost / subscriptions.length;
+
+    // Find most expensive subscription
+    const mostExpensive = subscriptions.reduce((max, sub) =>
+        parseFloat(sub.price) > parseFloat(max.price || 0) ? sub : max, subscriptions[0]);
+
+    // Calculate spending trend (simulate for now - we'll enhance this later)
+    const spendingTrend = calculateSpendingTrend();
+
+    // Calculate subscription growth (simulate for now)
+    const subscriptionGrowth = calculateSubscriptionGrowth();
+
+    return {
+        averageCost,
+        mostExpensive,
+        spendingTrend,
+        subscriptionGrowth
+    };
+}
+
+function calculateSpendingTrend() {
+    // For now, we'll simulate this - in Phase 2 we'll use real historical data
+    // This is a placeholder that shows random trend
+    const trends = [-15.5, -8.2, 0, 5.7, 12.3, 18.9, 25.1];
+    const randomTrend = trends[Math.floor(Math.random() * trends.length)];
+    return randomTrend;
+}
+
+function calculateSubscriptionGrowth() {
+    // For now, we'll simulate this - in Phase 2 we'll track real growth
+    // This is a placeholder
+    const growthRates = [-5, 0, 8, 15, 22, 30];
+    const randomGrowth = growthRates[Math.floor(Math.random() * growthRates.length)];
+    return randomGrowth;
+}
+
+function updateAdvancedDashboard() {
+    const stats = calculateAdvancedStats();
+
+    // Update average cost
+    document.getElementById('average-cost').textContent = formatCurrency(stats.averageCost);
+
+    // Update most expensive
+    const mostExpensiveElement = document.getElementById('most-expensive');
+    if (stats.mostExpensive) {
+        mostExpensiveElement.textContent = `${stats.mostExpensive.name} (${formatCurrency(stats.mostExpensive.price)})`;
+    } else {
+        mostExpensiveElement.textContent = 'None';
+    }
+
+    // Update spending trend
+    const spendingTrendElement = document.getElementById('spending-trend');
+    if (stats.spendingTrend !== null) {
+        const trendIcon = stats.spendingTrend >= 0 ? '↗️' : '↘️';
+        const trendClass = stats.spendingTrend >= 0 ? 'trend-up' : 'trend-down';
+        spendingTrendElement.innerHTML = `<span class="${trendClass}">${trendIcon} ${Math.abs(stats.spendingTrend).toFixed(1)}%</span>`;
+    } else {
+        spendingTrendElement.textContent = 'No data';
+    }
+
+    // Update subscription growth
+    const growthElement = document.getElementById('subscription-growth');
+    const growthIcon = stats.subscriptionGrowth >= 0 ? '📈' : '📉';
+    const growthClass = stats.subscriptionGrowth >= 0 ? 'trend-up' : 'trend-down';
+    growthElement.innerHTML = `<span class="${growthClass}">${growthIcon} ${stats.subscriptionGrowth}%</span>`;
 }
 
 /**
@@ -374,10 +458,10 @@ function handleSubscriptionAction(e) {
 
 function generateCategoryChart() {
     const ctx = document.getElementById('category-chart').getContext('2d');
-    
+
     // Group subscriptions by category and sum prices
     const categoryData = {};
-    
+
     subscriptions.forEach(sub => {
         const category = sub.category || 'other';
         if (!categoryData[category]) {
@@ -385,11 +469,11 @@ function generateCategoryChart() {
         }
         categoryData[category] += parseFloat(sub.price);
     });
-    
+
     // Prepare data for chart
     const labels = Object.keys(categoryData);
     const data = Object.values(categoryData);
-    
+
     // Define colors for categories
     const categoryColors = {
         'entertainment': '#9c36b5',
@@ -397,9 +481,9 @@ function generateCategoryChart() {
         'utilities': '#20c997',
         'other': '#868e96'
     };
-    
+
     const colors = labels.map(label => categoryColors[label] || '#868e96');
-    
+
     // Create chart and return instance
     return new Chart(ctx, {
         type: 'doughnut',
@@ -424,7 +508,7 @@ function generateCategoryChart() {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             const value = context.raw;
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const percentage = Math.round((value / total) * 100);
@@ -439,25 +523,25 @@ function generateCategoryChart() {
 
 function generateTrendChart() {
     const ctx = document.getElementById('trend-chart').getContext('2d');
-    
+
     // Create data for the next 6 months
     const months = [];
     const monthlyAmounts = [];
-    
+
     const currentDate = new Date();
-    
+
     for (let i = 0; i < 6; i++) {
         const month = new Date(currentDate);
         month.setMonth(currentDate.getMonth() + i);
-        
+
         const monthName = month.toLocaleString('default', { month: 'short' });
         const year = month.getFullYear();
         const label = `${monthName} ${year}`;
-        
+
         months.push(label);
         monthlyAmounts.push(calculateMonthTotal(month));
     }
-    
+
     // Create chart and return instance
     return new Chart(ctx, {
         type: 'line',
@@ -498,7 +582,7 @@ function generateTrendChart() {
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             return '$' + context.raw.toFixed(2);
                         }
                     }
@@ -524,11 +608,11 @@ function updateCharts() {
     if (categoryChartInstance) {
         categoryChartInstance.destroy();
     }
-    
+
     if (trendChartInstance) {
         trendChartInstance.destroy();
     }
-    
+
     // Generate new charts
     categoryChartInstance = generateCategoryChart();
     trendChartInstance = generateTrendChart();

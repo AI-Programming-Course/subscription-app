@@ -497,3 +497,37 @@ canvas {
     width: 100% !important;
     height: 300px !important;
 }
+
+/* Enhanced Analytics Styles */
+.trend-up {
+    color: var(--success-color);
+}
+
+.trend-down {
+    color: var(--danger-color);
+}
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Ensure cards wrap nicely with more cards */
+@media (max-width: 1024px) {
+    .dashboard-cards {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+}
