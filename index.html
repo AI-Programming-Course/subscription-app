@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SubTracker | Subscription Manager</title>
-        <link rel="stylesheet" href="css/styles.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    </head>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubTracker | Subscription Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+
 <body>
     <div class="app-container">
         <header>
@@ -21,7 +23,7 @@
                 </button>
             </div>
         </header>
-        
+
         <main>
             <section class="dashboard">
                 <div class="dashboard-cards">
@@ -73,6 +75,39 @@
                     </div>
                 </div>
             </section>
+            <!-- Category Analytics Section -->
+            <section class="category-analytics">
+                <h2>Category Insights</h2>
+                <div class="category-insights-grid">
+                    <div class="insight-card">
+                        <h3>Top Spending Category</h3>
+                        <p id="top-category">Entertainment</p>
+                        <span id="top-category-amount">$45.99</span>
+                    </div>
+                    <div class="insight-card">
+                        <h3>Fastest Growing</h3>
+                        <p id="growing-category">Productivity</p>
+                        <span id="growing-category-change">+25%</span>
+                    </div>
+                    <div class="insight-card">
+                        <h3>Most Subscriptions</h3>
+                        <p id="most-subs-category">Entertainment</p>
+                        <span id="most-subs-count">5 services</span>
+                    </div>
+                    <div class="insight-card">
+                        <h3>Average per Category</h3>
+                        <p id="avg-per-category">4 categories</p>
+                        <span id="avg-category-spend">$23.50</span>
+                    </div>
+                </div>
+
+                <div class="category-breakdown">
+                    <h3>Category Breakdown</h3>
+                    <div id="category-list" class="category-breakdown-list">
+                        <!-- Categories will be populated here -->
+                    </div>
+                </div>
+            </section>
             <section class="subscription-management">
                 <div class="tools-bar">
                     <div class="search-box">
@@ -97,14 +132,14 @@
                         <i class="fas fa-plus"></i> Add New
                     </button>
                 </div>
-                
+
                 <div id="subscriptions-list" class="subscriptions-list">
                     <!-- Subscriptions will be dynamically added here -->
                     <p class="empty-message">No subscriptions added yet.</p>
                 </div>
             </section>
         </main>
-        
+
         <!-- Modal for adding/editing subscriptions -->
         <div id="subscription-modal" class="modal">
             <div class="modal-content">
@@ -149,4 +184,5 @@
 
     <script src="js/script.js"></script>
 </body>
+
 </html>

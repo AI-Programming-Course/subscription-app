@@ -177,6 +177,9 @@ function updateDashboard() {
     }
     // Add this line at the very end of the function:
     updateAdvancedDashboard();
+
+    // Add this line:
+    updateCategoryInsights();
 }
 
 /**
@@ -235,14 +238,14 @@ function getCurrentMonthKey() {
 function captureMonthlySnapshot() {
     const currentMonth = getCurrentMonthKey();
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Calculate current totals
     const monthlyTotal = subscriptions.reduce((sum, sub) => sum + parseFloat(sub.price), 0);
     const subscriptionCount = subscriptions.length;
-    
+
     // Check if we already have data for this month
     const existingIndex = monthlyHistory.findIndex(entry => entry.month === currentMonth);
-    
+
     const snapshot = {
         month: currentMonth,
         monthlyTotal: monthlyTotal,
@@ -255,7 +258,7 @@ function captureMonthlySnapshot() {
             category: sub.category
         }))
     };
-    
+
     if (existingIndex >= 0) {
         // Update existing entry
         monthlyHistory[existingIndex] = snapshot;
@@ -263,27 +266,27 @@ function captureMonthlySnapshot() {
         // Add new entry
         monthlyHistory.push(snapshot);
     }
-    
+
     // Keep only last 12 months
     monthlyHistory = monthlyHistory
         .sort((a, b) => a.month.localeCompare(b.month))
         .slice(-12);
-    
+
     // Save to localStorage
     localStorage.setItem('monthlyHistory', JSON.stringify(monthlyHistory));
     localStorage.setItem('lastHistoryUpdate', today);
-    
+
     console.log('Monthly snapshot captured:', snapshot);
 }
 
 function initializeHistoricalData() {
     const today = new Date().toISOString().split('T')[0];
-    
+
     // If we've never captured data, or it's been more than 30 days, capture now
     if (!lastHistoryUpdate || isNewMonth(lastHistoryUpdate, today)) {
         captureMonthlySnapshot();
     }
-    
+
     // Ensure we have some historical data for demo purposes
     ensureMinimumHistoricalData();
 }
@@ -291,9 +294,9 @@ function initializeHistoricalData() {
 function isNewMonth(lastUpdate, currentDate) {
     const lastDate = new Date(lastUpdate);
     const currentD = new Date(currentDate);
-    
-    return lastDate.getMonth() !== currentD.getMonth() || 
-           lastDate.getFullYear() !== currentD.getFullYear();
+
+    return lastDate.getMonth() !== currentD.getMonth() ||
+        lastDate.getFullYear() !== currentD.getFullYear();
 }
 
 function ensureMinimumHistoricalData() {
@@ -306,13 +309,13 @@ function ensureMinimumHistoricalData() {
 function generateHistoricalData() {
     const currentMonth = new Date();
     const currentTotal = subscriptions.reduce((sum, sub) => sum + parseFloat(sub.price), 0);
-    
+
     // Generate data for the last 6 months
     for (let i = 5; i >= 0; i--) {
         const month = new Date(currentMonth);
         month.setMonth(currentMonth.getMonth() - i);
         const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
-        
+
         // Check if we already have data for this month
         const exists = monthlyHistory.some(entry => entry.month === monthKey);
         if (!exists) {
@@ -320,7 +323,7 @@ function generateHistoricalData() {
             const variation = (Math.random() - 0.5) * 0.3; // ±15% variation
             const historicalTotal = Math.max(0, currentTotal * (1 + variation));
             const historicalCount = Math.max(1, Math.round(subscriptions.length * (1 + variation * 0.5)));
-            
+
             monthlyHistory.push({
                 month: monthKey,
                 monthlyTotal: parseFloat(historicalTotal.toFixed(2)),
@@ -331,12 +334,12 @@ function generateHistoricalData() {
             });
         }
     }
-    
+
     // Sort and keep last 12 months
     monthlyHistory = monthlyHistory
         .sort((a, b) => a.month.localeCompare(b.month))
         .slice(-12);
-    
+
     localStorage.setItem('monthlyHistory', JSON.stringify(monthlyHistory));
     console.log('Historical data initialized:', monthlyHistory);
 }
@@ -345,23 +348,23 @@ function calculateRealSpendingTrend() {
     if (monthlyHistory.length < 2) {
         return null;
     }
-    
+
     // Get the last two months
     const sortedHistory = monthlyHistory.sort((a, b) => a.month.localeCompare(b.month));
     const currentMonth = sortedHistory[sortedHistory.length - 1];
     const previousMonth = sortedHistory[sortedHistory.length - 2];
-    
+
     if (!currentMonth || !previousMonth) {
         return null;
     }
-    
+
     const currentTotal = currentMonth.monthlyTotal;
     const previousTotal = previousMonth.monthlyTotal;
-    
+
     if (previousTotal === 0) {
         return currentTotal > 0 ? 100 : 0;
     }
-    
+
     const percentChange = ((currentTotal - previousTotal) / previousTotal) * 100;
     return Math.round(percentChange * 10) / 10; // Round to 1 decimal
 }
@@ -370,25 +373,183 @@ function calculateRealSubscriptionGrowth() {
     if (monthlyHistory.length < 2) {
         return 0;
     }
-    
+
     // Get the last two months
     const sortedHistory = monthlyHistory.sort((a, b) => a.month.localeCompare(b.month));
     const currentMonth = sortedHistory[sortedHistory.length - 1];
     const previousMonth = sortedHistory[sortedHistory.length - 2];
-    
+
     if (!currentMonth || !previousMonth) {
         return 0;
     }
-    
+
     const currentCount = currentMonth.subscriptionCount;
     const previousCount = previousMonth.subscriptionCount;
-    
+
     if (previousCount === 0) {
         return currentCount > 0 ? 100 : 0;
     }
-    
+
     const percentChange = ((currentCount - previousCount) / previousCount) * 100;
     return Math.round(percentChange);
+}
+
+/**
+ * Category Analytics Functions
+ */
+function analyzeCategoryData() {
+    if (subscriptions.length === 0) {
+        return {
+            categories: {},
+            topSpending: null,
+            fastestGrowing: null,
+            mostSubscriptions: null,
+            averagePerCategory: 0
+        };
+    }
+
+    // Group by category
+    const categories = {};
+    subscriptions.forEach(sub => {
+        const category = sub.category || 'other';
+        if (!categories[category]) {
+            categories[category] = {
+                name: category,
+                totalSpent: 0,
+                count: 0,
+                subscriptions: [],
+                averageCost: 0
+            };
+        }
+        categories[category].totalSpent += parseFloat(sub.price);
+        categories[category].count += 1;
+        categories[category].subscriptions.push(sub);
+    });
+
+    // Calculate averages
+    Object.keys(categories).forEach(key => {
+        categories[key].averageCost = categories[key].totalSpent / categories[key].count;
+    });
+
+    // Find top spending category
+    const topSpending = Object.values(categories).reduce((max, cat) =>
+        cat.totalSpent > (max?.totalSpent || 0) ? cat : max, null);
+
+    // Find category with most subscriptions
+    const mostSubscriptions = Object.values(categories).reduce((max, cat) =>
+        cat.count > (max?.count || 0) ? cat : max, null);
+
+    // Calculate average per category
+    const totalCategories = Object.keys(categories).length;
+    const averagePerCategory = totalCategories > 0 ?
+        Object.values(categories).reduce((sum, cat) => sum + cat.totalSpent, 0) / totalCategories : 0;
+
+    // Calculate fastest growing (simplified - based on current data)
+    const fastestGrowing = calculateFastestGrowingCategory(categories);
+
+    return {
+        categories,
+        topSpending,
+        fastestGrowing,
+        mostSubscriptions,
+        averagePerCategory
+    };
+}
+
+function calculateFastestGrowingCategory(categories) {
+    // For now, return the category with highest average cost
+    // In a future update, we can track historical category data
+    return Object.values(categories).reduce((max, cat) =>
+        cat.averageCost > (max?.averageCost || 0) ? cat : max, null);
+}
+
+function updateCategoryInsights() {
+    const analysis = analyzeCategoryData();
+
+    // Update top spending category
+    if (analysis.topSpending) {
+        document.getElementById('top-category').textContent =
+            analysis.topSpending.name.charAt(0).toUpperCase() + analysis.topSpending.name.slice(1);
+        document.getElementById('top-category-amount').textContent =
+            formatCurrency(analysis.topSpending.totalSpent);
+    } else {
+        document.getElementById('top-category').textContent = 'None';
+        document.getElementById('top-category-amount').textContent = '$0.00';
+    }
+
+    // Update fastest growing
+    if (analysis.fastestGrowing) {
+        document.getElementById('growing-category').textContent =
+            analysis.fastestGrowing.name.charAt(0).toUpperCase() + analysis.fastestGrowing.name.slice(1);
+        document.getElementById('growing-category-change').textContent =
+            `${formatCurrency(analysis.fastestGrowing.averageCost)} avg`;
+    } else {
+        document.getElementById('growing-category').textContent = 'None';
+        document.getElementById('growing-category-change').textContent = '0%';
+    }
+
+    // Update most subscriptions
+    if (analysis.mostSubscriptions) {
+        document.getElementById('most-subs-category').textContent =
+            analysis.mostSubscriptions.name.charAt(0).toUpperCase() + analysis.mostSubscriptions.name.slice(1);
+        document.getElementById('most-subs-count').textContent =
+            `${analysis.mostSubscriptions.count} service${analysis.mostSubscriptions.count === 1 ? '' : 's'}`;
+    } else {
+        document.getElementById('most-subs-category').textContent = 'None';
+        document.getElementById('most-subs-count').textContent = '0 services';
+    }
+
+    // Update average per category
+    const categoryCount = Object.keys(analysis.categories).length;
+    document.getElementById('avg-per-category').textContent =
+        `${categoryCount} categor${categoryCount === 1 ? 'y' : 'ies'}`;
+    document.getElementById('avg-category-spend').textContent =
+        formatCurrency(analysis.averagePerCategory);
+
+    // Update category breakdown
+    updateCategoryBreakdown(analysis.categories);
+}
+
+function updateCategoryBreakdown(categories) {
+    const categoryList = document.getElementById('category-list');
+    categoryList.innerHTML = '';
+
+    if (Object.keys(categories).length === 0) {
+        categoryList.innerHTML = '<p class="empty-message">No category data available.</p>';
+        return;
+    }
+
+    // Sort categories by total spending
+    const sortedCategories = Object.values(categories).sort((a, b) => b.totalSpent - a.totalSpent);
+
+    sortedCategories.forEach(category => {
+        const categoryItem = document.createElement('div');
+        categoryItem.className = 'category-breakdown-item';
+
+        const categoryName = category.name.charAt(0).toUpperCase() + category.name.slice(1);
+        const percentage = ((category.totalSpent / sortedCategories.reduce((sum, cat) => sum + cat.totalSpent, 0)) * 100).toFixed(1);
+
+        categoryItem.innerHTML = `
+            <div class="category-breakdown-header">
+                <span class="category-breakdown-name">
+                    <span class="subscription-category category-${category.name}">${categoryName}</span>
+                </span>
+                <span class="category-breakdown-total">${formatCurrency(category.totalSpent)}</span>
+            </div>
+            <div class="category-breakdown-details">
+                <span>${category.count} subscription${category.count === 1 ? '' : 's'}</span>
+                <span>•</span>
+                <span>Avg: ${formatCurrency(category.averageCost)}</span>
+                <span>•</span>
+                <span>${percentage}% of total</span>
+            </div>
+            <div class="category-breakdown-bar">
+                <div class="category-breakdown-fill category-${category.name}" style="width: ${percentage}%"></div>
+            </div>
+        `;
+
+        categoryList.appendChild(categoryItem);
+    });
 }
 
 function updateAdvancedDashboard() {
@@ -689,31 +850,31 @@ function generateCategoryChart() {
 
 function generateTrendChart() {
     const ctx = document.getElementById('trend-chart').getContext('2d');
-    
+
     // Use historical data if available, otherwise show current month projection
     let chartData = [];
     let labels = [];
-    
+
     if (monthlyHistory.length > 0) {
         // Use real historical data
         const sortedHistory = monthlyHistory.sort((a, b) => a.month.localeCompare(b.month));
-        
+
         sortedHistory.forEach(entry => {
             const date = new Date(entry.month + '-01');
             const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
             labels.push(monthName);
             chartData.push(entry.monthlyTotal);
         });
-        
+
         // Add current month if not already included
         const currentMonthKey = getCurrentMonthKey();
         const hasCurrentMonth = sortedHistory.some(entry => entry.month === currentMonthKey);
-        
+
         if (!hasCurrentMonth) {
             const currentDate = new Date();
             const currentMonthName = currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
             const currentTotal = subscriptions.reduce((sum, sub) => sum + parseFloat(sub.price), 0);
-            
+
             labels.push(currentMonthName);
             chartData.push(currentTotal);
         }
@@ -722,11 +883,11 @@ function generateTrendChart() {
         const currentDate = new Date();
         const currentMonthName = currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         const currentTotal = subscriptions.reduce((sum, sub) => sum + parseFloat(sub.price), 0);
-        
+
         labels.push(currentMonthName);
         chartData.push(currentTotal);
     }
-    
+
     // Create chart with enhanced styling
     return new Chart(ctx, {
         type: 'line',
@@ -776,10 +937,10 @@ function generateTrendChart() {
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             return 'Monthly Spending: $' + context.raw.toFixed(2);
                         },
-                        afterLabel: function(context) {
+                        afterLabel: function (context) {
                             const yearlyProjection = (context.raw * 12).toFixed(2);
                             return 'Yearly Projection: $' + yearlyProjection;
                         }
