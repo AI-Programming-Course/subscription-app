@@ -43,7 +43,7 @@
                         <h3>Next Renewal</h3>
                         <p id="next-renewal">None</p>
                     </div>
-                    <!-- New Enhanced Analytics Cards -->
+                    <!-- Enhanced Analytics Cards -->
                     <div class="card average-cost">
                         <h3>Average per Subscription</h3>
                         <p id="average-cost">$0.00</p>
@@ -62,6 +62,91 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Phase 4: Subscription Insights Section -->
+            <section class="subscription-insights">
+                <h2>Subscription Insights</h2>
+                <div class="insights-grid">
+                    <div class="insight-detail-card">
+                        <h3>Cost Efficiency Analysis</h3>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Most Efficient</span>
+                            <span class="insight-metric-value" id="most-efficient">None</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Least Efficient</span>
+                            <span class="insight-metric-value" id="least-efficient">None</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Avg Cost/Day</span>
+                            <span class="insight-metric-value" id="avg-daily-cost">$0.00</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Annual Savings Potential</span>
+                            <span class="insight-metric-value" id="savings-potential">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="insight-detail-card">
+                        <h3>Subscription Lifecycle</h3>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Longest Running</span>
+                            <span class="insight-metric-value" id="longest-running">None</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Newest Addition</span>
+                            <span class="insight-metric-value" id="newest-addition">None</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Average Age</span>
+                            <span class="insight-metric-value" id="average-age">0 months</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Total Lifetime Value</span>
+                            <span class="insight-metric-value" id="lifetime-value">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="insight-detail-card">
+                        <h3>Renewal Patterns</h3>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">This Week</span>
+                            <span class="insight-metric-value" id="renewals-week">0 renewals</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">This Month</span>
+                            <span class="insight-metric-value" id="renewals-month">0 renewals</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Overdue</span>
+                            <span class="insight-metric-value" id="renewals-overdue">0 services</span>
+                        </div>
+                        <div class="insight-metric">
+                            <span class="insight-metric-label">Peak Renewal Month</span>
+                            <span class="insight-metric-value" id="peak-month">None</span>
+                        </div>
+                    </div>
+
+                    <div class="insight-detail-card">
+                        <h3>Upcoming Renewals</h3>
+                        <div id="renewal-timeline" class="renewal-timeline">
+                            <!-- Renewal items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lifecycle-chart-container">
+                    <div class="chart-card">
+                        <h3>Subscription Age Distribution</h3>
+                        <canvas id="lifecycle-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Cost Efficiency Scatter</h3>
+                        <canvas id="efficiency-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
             <section class="charts-section">
                 <h2>Subscription Analytics</h2>
                 <div class="charts-container">
@@ -75,6 +160,7 @@
                     </div>
                 </div>
             </section>
+
             <!-- Category Analytics Section -->
             <section class="category-analytics">
                 <h2>Category Insights</h2>
@@ -108,6 +194,7 @@
                     </div>
                 </div>
             </section>
+
             <section class="subscription-management">
                 <div class="tools-bar">
                     <div class="search-box">
@@ -168,6 +255,10 @@
                     <div class="form-group">
                         <label for="date">Renewal Date:</label>
                         <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="start-date">Start Date (Optional):</label>
+                        <input type="date" id="start-date">
                     </div>
                     <div class="form-group">
                         <label for="notes">Notes (Optional):</label>
